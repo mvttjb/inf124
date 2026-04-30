@@ -1,0 +1,141 @@
+.page {
+  max-width: 1100px;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 24px;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.headerLeft {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.screenBadge {
+  background: var(--color-dark-navy);
+  color: #63b3ed;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 20px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.title {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--color-dark-navy);
+  letter-spacing: -0.01em;
+}
+
+.description {
+  color: var(--color-light);
+  font-size: 13.5px;
+  line-height: 1.5;
+  max-width: 420px;
+  text-align: right;
+}
+
+.screenWrapper {
+  background: var(--color-white);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+}
+
+.browserChrome {
+  background: #f7fafc;
+  border-bottom: 1px solid var(--color-border);
+  padding: 10px 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.browserDots {
+  display: flex;
+  gap: 5px;
+  flex-shrink: 0;
+}
+
+.browserDots span {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--color-lighter);
+}
+
+.browserDots span:nth-child(1) { background: #fc8181; }
+.browserDots span:nth-child(2) { background: #f6ad55; }
+.browserDots span:nth-child(3) { background: #68d391; }
+
+.browserBar {
+  flex: 1;
+  background: white;
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  padding: 4px 12px;
+  font-size: 11.5px;
+  color: var(--color-light);
+  font-family: var(--font-mono);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.imageContainer {
+  position: relative;
+  width: 100%;
+  opacity: 0;
+  transition: opacity 0.35s ease;
+}
+
+.imageContainer.loaded {
+  opacity: 1;
+}
+
+.skeleton {
+  position: absolute;
+  inset: 0;
+  background: var(--color-lighter);
+  min-height: 400px;
+}
+
+.skeletonPulse {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255,255,255,0.5) 50%,
+    transparent 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.4s infinite;
+}
+
+@keyframes shimmer {
+  from { background-position: -200% 0; }
+  to { background-position: 200% 0; }
+}
+
+.wireframeImg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
