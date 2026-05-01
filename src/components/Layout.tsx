@@ -1,6 +1,5 @@
 import React from "react";
 import Navbar from "./Navbar";
-import styles from "./Layout.module.css";
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -8,9 +7,11 @@ interface LayoutProps {
 
 const Layout: React.FC<LayoutProps> = ({ children }) => {
   return (
-    <div className={styles.layout}>
+    <div className="flex min-h-screen bg-slate-50 w-full overflow-hidden">
       <Navbar />
-      <main className={styles.main}>{children}</main>
+      <main className="flex-1 p-6 lg:p-8 overflow-y-auto">
+        {children}
+      </main>
     </div>
   );
 };

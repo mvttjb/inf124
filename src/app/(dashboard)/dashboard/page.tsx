@@ -3,183 +3,220 @@
 import React from "react";
 import { X, Plus, Bookmark } from "lucide-react";
 import Link from "next/link";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 
 export default function DashboardPage() {
   return (
-    <div className="dash-layout">
+    <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr_300px] gap-8 max-w-[1440px] mx-auto w-full">
+      
       {/* Left Column: Profile & Stats */}
-      <div className="dash-left-col">
-        <div className="dash-card">
-          <div className="profile-header">
-            <div className="profile-avatar" style={{ backgroundColor: '#2d3748' }}></div>
-            <h2 className="profile-name">Lance Vu</h2>
-            <p className="profile-uni">UC Irvine</p>
-          </div>
+      <div className="flex flex-col gap-6">
+        <Card>
+          <CardContent className="pt-6 flex flex-col items-center text-center">
+            {/* Avatar Placeholder */}
+            <div className="w-20 h-20 rounded-xl bg-slate-800 mb-4" />
+            <h2 className="text-xl font-semibold text-slate-900">Alex Chen</h2>
+            <p className="text-sm text-slate-500 mb-6">UC Irvine</p>
 
-          <div style={{ marginBottom: "1.5rem" }}>
-            <h3 style={{ fontSize: "1rem", fontWeight: 600, marginBottom: "0.75rem" }}>Enrolled Courses</h3>
-            <div className="course-tags">
-              <span className="course-tag">ICS 31 <button><X size={12} /></button></span>
-              <span className="course-tag">ICS 45J <button><X size={12} /></button></span>
-              <span className="course-tag">ICS 6D <button><X size={12} /></button></span>
-              <span className="course-tag">IN4MTX 124 <button><X size={12} /></button></span>
+            <div className="w-full text-left">
+              <h3 className="text-base font-semibold mb-3">Enrolled Courses</h3>
+              <div className="flex flex-wrap gap-2 mb-4">
+                <Badge variant="secondary" className="flex items-center gap-1">
+                  ICS 31 <button className="text-slate-400 hover:text-slate-900"><X size={12} /></button>
+                </Badge>
+                <Badge variant="secondary" className="flex items-center gap-1">
+                  ICS 45J <button className="text-slate-400 hover:text-slate-900"><X size={12} /></button>
+                </Badge>
+                <Badge variant="secondary" className="flex items-center gap-1">
+                  ICS 6D <button className="text-slate-400 hover:text-slate-900"><X size={12} /></button>
+                </Badge>
+                <Badge variant="secondary" className="flex items-center gap-1">
+                  IN4MTX 124 <button className="text-slate-400 hover:text-slate-900"><X size={12} /></button>
+                </Badge>
+              </div>
+              <Button variant="outline" className="w-full gap-2">
+                <Plus size={16} /> Add Course
+              </Button>
             </div>
-            <button className="dash-btn-outline">
-              <Plus size={16} /> Add Course
-            </button>
-          </div>
-        </div>
+          </CardContent>
+        </Card>
 
-        <div className="dash-card">
-          <h3 style={{ fontSize: "1rem", fontWeight: 600, marginBottom: "1rem" }}>Stats</h3>
-          <div className="stat-row">
-            <span className="stat-label">Study Hours</span>
-            <span className="stat-value">24.5</span>
-          </div>
-          <div className="stat-row">
-            <span className="stat-label">Groups Joined</span>
-            <span className="stat-value">4</span>
-          </div>
-        </div>
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base">Stats</CardTitle>
+          </CardHeader>
+          <CardContent className="flex flex-col gap-4">
+            <div className="flex justify-between items-center">
+              <span className="text-sm text-slate-500">Study Hours</span>
+              <span className="text-base font-semibold text-slate-900">24.5</span>
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="text-sm text-slate-500">Groups Joined</span>
+              <span className="text-base font-semibold text-slate-900">4</span>
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
       {/* Middle Column: Main Feed */}
-      <div className="dash-mid-col">
-        <div className="dash-section-header">
-          <h2 className="dash-section-title">My Study Groups</h2>
-          <Link href="/search" className="dash-section-link">View All</Link>
+      <div className="flex flex-col">
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-xl font-semibold text-slate-900">My Study Groups</h2>
+          <Link href="/search" className="text-sm font-medium underline text-slate-900">View All</Link>
         </div>
 
-        <div className="group-cards">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
           {/* Card 1 */}
-          <div className="group-card">
-            <div className="group-img-wrapper" style={{ backgroundColor: "#3f3f46" }}>
-              <div className="live-badge">LIVE</div>
-              {/* placeholder for image */}
+          <Card className="overflow-hidden">
+            <div className="relative h-[140px] bg-zinc-700">
+              <div className="absolute top-3 right-3 bg-white text-slate-900 text-[10px] font-bold px-2 py-0.5 rounded uppercase">
+                LIVE
+              </div>
             </div>
-            <div className="group-content">
-              <h3 className="group-title">Algorithms Prep</h3>
-              <p className="group-subtitle">ICS 45J • 12 Members</p>
-              <button className="dash-btn-solid">Enter Room</button>
-            </div>
-          </div>
+            <CardContent className="p-4">
+              <h3 className="text-base font-semibold mb-1">Algorithms Prep</h3>
+              <p className="text-xs text-slate-500 mb-4">ICS 45J • 12 Members</p>
+              <Button className="w-full">Enter Room</Button>
+            </CardContent>
+          </Card>
 
           {/* Card 2 */}
-          <div className="group-card">
-            <div className="group-img-wrapper" style={{ backgroundColor: "#52525b" }}>
-            </div>
-            <div className="group-content">
-              <h3 className="group-title">Discrete Math Review</h3>
-              <p className="group-subtitle">ICS 6D • 8 Members</p>
-              <button className="dash-btn-outline">Details</button>
-            </div>
-          </div>
+          <Card className="overflow-hidden">
+            <div className="relative h-[140px] bg-zinc-600"></div>
+            <CardContent className="p-4">
+              <h3 className="text-base font-semibold mb-1">Discrete Math Review</h3>
+              <p className="text-xs text-slate-500 mb-4">ICS 6D • 8 Members</p>
+              <Button variant="outline" className="w-full">Details</Button>
+            </CardContent>
+          </Card>
         </div>
 
-        <div className="dash-section-header" style={{ marginTop: "1rem" }}>
-          <h2 className="dash-section-title">Recommended for You</h2>
+        <div className="flex justify-between items-center mb-4 mt-2">
+          <h2 className="text-xl font-semibold text-slate-900">Recommended for You</h2>
         </div>
 
-        <div className="rec-cards">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {/* Rec 1 */}
-          <div className="rec-card">
-            <div className="rec-header">
-              <span className="rec-tag">ICS 6D</span>
-              <Bookmark size={16} color="#a1a1aa" />
-            </div>
-            <h4 className="rec-title">Logic Sprint</h4>
-            <p className="rec-desc">Deep dive into boolean algebra and proofs...</p>
-            <div className="rec-footer">
-              <div className="rec-avatars">
-                <div className="rec-avatar"></div>
-                <div className="rec-avatar"></div>
-                <div className="rec-avatar"></div>
+          <Card>
+            <CardContent className="p-4">
+              <div className="flex justify-between items-start mb-3">
+                <span className="bg-slate-100 text-slate-900 text-[10px] font-bold px-2 py-0.5 rounded">ICS 6D</span>
+                <Bookmark size={16} className="text-slate-400" />
               </div>
-              <span className="rec-join">JOIN</span>
-            </div>
-          </div>
+              <h4 className="text-sm font-semibold mb-1">Logic Sprint</h4>
+              <p className="text-xs text-slate-500 line-clamp-2 leading-relaxed mb-4">
+                Deep dive into boolean algebra and proofs...
+              </p>
+              <div className="flex justify-between items-center">
+                <div className="flex -space-x-1.5">
+                  <div className="w-5 h-5 rounded-full border-2 border-white bg-zinc-300"></div>
+                  <div className="w-5 h-5 rounded-full border-2 border-white bg-zinc-300"></div>
+                  <div className="w-5 h-5 rounded-full border-2 border-white bg-zinc-300"></div>
+                </div>
+                <span className="text-xs font-bold text-slate-900 cursor-pointer">JOIN</span>
+              </div>
+            </CardContent>
+          </Card>
 
           {/* Rec 2 */}
-          <div className="rec-card">
-            <div className="rec-header">
-              <span className="rec-tag">ICS 45J</span>
-              <Bookmark size={16} color="#a1a1aa" />
-            </div>
-            <h4 className="rec-title">Pointer Logic</h4>
-            <p className="rec-desc">Mastering memory management and pointers...</p>
-            <div className="rec-footer">
-              <div className="rec-avatars">
-                <div className="rec-avatar"></div>
-                <div className="rec-avatar"></div>
+          <Card>
+            <CardContent className="p-4">
+              <div className="flex justify-between items-start mb-3">
+                <span className="bg-slate-100 text-slate-900 text-[10px] font-bold px-2 py-0.5 rounded">ICS 45J</span>
+                <Bookmark size={16} className="text-slate-400" />
               </div>
-              <span className="rec-join">JOIN</span>
-            </div>
-          </div>
+              <h4 className="text-sm font-semibold mb-1">Pointer Logic</h4>
+              <p className="text-xs text-slate-500 line-clamp-2 leading-relaxed mb-4">
+                Mastering memory management and pointers...
+              </p>
+              <div className="flex justify-between items-center">
+                <div className="flex -space-x-1.5">
+                  <div className="w-5 h-5 rounded-full border-2 border-white bg-zinc-300"></div>
+                  <div className="w-5 h-5 rounded-full border-2 border-white bg-zinc-300"></div>
+                </div>
+                <span className="text-xs font-bold text-slate-900 cursor-pointer">JOIN</span>
+              </div>
+            </CardContent>
+          </Card>
 
           {/* Rec 3 */}
-          <div className="rec-card">
-            <div className="rec-header">
-              <span className="rec-tag">IN4MTX 124</span>
-              <Bookmark size={16} color="#a1a1aa" />
-            </div>
-            <h4 className="rec-title">Web Dev Feedback</h4>
-            <p className="rec-desc">Peer review session for React final project...</p>
-            <div className="rec-footer">
-              <div className="rec-avatars">
-                <div className="rec-avatar"></div>
-                <div className="rec-avatar"></div>
-                <div className="rec-avatar"></div>
+          <Card>
+            <CardContent className="p-4">
+              <div className="flex justify-between items-start mb-3">
+                <span className="bg-slate-100 text-slate-900 text-[10px] font-bold px-2 py-0.5 rounded">IN4MTX 124</span>
+                <Bookmark size={16} className="text-slate-400" />
               </div>
-              <span className="rec-join">JOIN</span>
-            </div>
-          </div>
+              <h4 className="text-sm font-semibold mb-1">Web Dev Feedback</h4>
+              <p className="text-xs text-slate-500 line-clamp-2 leading-relaxed mb-4">
+                Peer review session for React final project...
+              </p>
+              <div className="flex justify-between items-center">
+                <div className="flex -space-x-1.5">
+                  <div className="w-5 h-5 rounded-full border-2 border-white bg-zinc-300"></div>
+                  <div className="w-5 h-5 rounded-full border-2 border-white bg-zinc-300"></div>
+                  <div className="w-5 h-5 rounded-full border-2 border-white bg-zinc-300"></div>
+                </div>
+                <span className="text-xs font-bold text-slate-900 cursor-pointer">JOIN</span>
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </div>
 
       {/* Right Column: Schedule */}
-      <div className="dash-right-col">
-        <div className="dash-card" style={{ padding: "1.25rem" }}>
-          <h3 className="schedule-header">Study Schedule</h3>
-          <div className="calendar-week">
-            <div className="calendar-day"><span className="cal-letter">M</span><span className="cal-num">12</span></div>
-            <div className="calendar-day"><span className="cal-letter">T</span><span className="cal-num">13</span></div>
-            <div className="calendar-day"><span className="cal-letter">W</span><span className="cal-num active">14</span></div>
-            <div className="calendar-day"><span className="cal-letter">T</span><span className="cal-num">15</span></div>
-            <div className="calendar-day"><span className="cal-letter">F</span><span className="cal-num">16</span></div>
-            <div className="calendar-day"><span className="cal-letter">S</span><span className="cal-num">17</span></div>
-            <div className="calendar-day"><span className="cal-letter">S</span><span className="cal-num">18</span></div>
-          </div>
-        </div>
+      <div className="flex flex-col gap-6">
+        <Card>
+          <CardHeader className="pb-4">
+            <CardTitle className="text-base">Study Schedule</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex justify-between mb-2">
+              {['M','T','W','T','F','S','S'].map((day, i) => (
+                <div key={i} className="flex flex-col items-center gap-1">
+                  <span className="text-[10px] font-medium text-slate-500">{day}</span>
+                  <span className={`text-sm font-medium w-7 h-7 flex items-center justify-center rounded-md ${i === 2 ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-900'}`}>
+                    {12 + i}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
 
-        <div className="dash-card" style={{ padding: "1.25rem" }}>
-          <h3 className="schedule-header">Upcoming Sessions</h3>
-          <div className="session-list" style={{ marginBottom: "1.5rem" }}>
-            <div className="session-item">
-              <div className="session-bar"></div>
+        <Card>
+          <CardHeader className="pb-4">
+            <CardTitle className="text-base">Upcoming Sessions</CardTitle>
+          </CardHeader>
+          <CardContent className="flex flex-col gap-5">
+            <div className="flex gap-3">
+              <div className="w-1 bg-slate-900 rounded-full" />
               <div>
-                <h4 className="session-title">Algo Midterm Review</h4>
-                <p className="session-time">Today • 4:00 PM - 5:30 PM</p>
+                <h4 className="text-sm font-semibold mb-0.5">Algo Midterm Review</h4>
+                <p className="text-xs text-slate-500">Today • 4:00 PM - 5:30 PM</p>
               </div>
             </div>
-            <div className="session-item">
-              <div className="session-bar light"></div>
+            <div className="flex gap-3">
+              <div className="w-1 bg-slate-200 rounded-full" />
               <div>
-                <h4 className="session-title">Discrete Math Group</h4>
-                <p className="session-time">Tomorrow • 10:00 AM</p>
+                <h4 className="text-sm font-semibold mb-0.5">Discrete Math Group</h4>
+                <p className="text-xs text-slate-500">Tomorrow • 10:00 AM</p>
               </div>
             </div>
-            <div className="session-item">
-              <div className="session-bar light"></div>
+            <div className="flex gap-3">
+              <div className="w-1 bg-slate-200 rounded-full" />
               <div>
-                <h4 className="session-title">Web Dev Writeup</h4>
-                <p className="session-time">Friday • 2:00 PM</p>
+                <h4 className="text-sm font-semibold mb-0.5">Web Dev Writeup</h4>
+                <p className="text-xs text-slate-500">Friday • 2:00 PM</p>
               </div>
             </div>
-          </div>
-          <button className="dash-btn-outline" style={{ backgroundColor: "#f4f4f5", border: "none" }}>
-            View Full Schedule
-          </button>
-        </div>
+            
+            <Button variant="secondary" className="w-full mt-2">
+              View Full Schedule
+            </Button>
+          </CardContent>
+        </Card>
       </div>
 
     </div>
