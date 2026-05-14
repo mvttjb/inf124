@@ -1,11 +1,59 @@
 "use client";
 
 import React from "react";
-import { X, Plus, Bookmark } from "lucide-react";
+import { X, Plus } from "lucide-react";
 import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { StudyGroupCard } from "@/components/dashboard/StudyGroupCard";
+import { RecommendedGroupCard } from "@/components/dashboard/RecommendedGroupCard";
+import type { RecommendedGroupCardData, StudyGroupCardData } from "@/types/dashboard";
+
+/** Replace with account-scoped data from your API */
+const MOCK_MY_STUDY_GROUPS: StudyGroupCardData[] = [
+  {
+    id: "1",
+    title: "Algorithms Prep",
+    courseCode: "ICS 45J",
+    memberCount: 12,
+    heroClassName: "bg-zinc-700",
+    isLive: true,
+    action: { label: "Enter Room", variant: "default" },
+  },
+  {
+    id: "2",
+    title: "Discrete Math Review",
+    courseCode: "ICS 6D",
+    memberCount: 8,
+    heroClassName: "bg-zinc-600",
+    action: { label: "Details", variant: "outline" },
+  },
+];
+
+const MOCK_RECOMMENDED: RecommendedGroupCardData[] = [
+  {
+    id: "r1",
+    courseCode: "ICS 6D",
+    title: "Logic Sprint",
+    description: "Deep dive into boolean algebra and proofs...",
+    memberPreviewCount: 3,
+  },
+  {
+    id: "r2",
+    courseCode: "ICS 45J",
+    title: "Pointer Logic",
+    description: "Mastering memory management and pointers...",
+    memberPreviewCount: 2,
+  },
+  {
+    id: "r3",
+    courseCode: "IN4MTX 124",
+    title: "Web Dev Feedback",
+    description: "Peer review session for React final project...",
+    memberPreviewCount: 3,
+  },
+];
 
 export default function DashboardPage() {
   return (
@@ -68,29 +116,9 @@ export default function DashboardPage() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-          {/* Card 1 */}
-          <Card className="overflow-hidden">
-            <div className="relative h-[140px] bg-zinc-700">
-              <div className="absolute top-3 right-3 bg-white text-slate-900 text-[10px] font-bold px-2 py-0.5 rounded uppercase">
-                LIVE
-              </div>
-            </div>
-            <CardContent className="p-4">
-              <h3 className="text-base font-semibold mb-1">Algorithms Prep</h3>
-              <p className="text-xs text-slate-500 mb-4">ICS 45J • 12 Members</p>
-              <Button className="w-full">Enter Room</Button>
-            </CardContent>
-          </Card>
-
-          {/* Card 2 */}
-          <Card className="overflow-hidden">
-            <div className="relative h-[140px] bg-zinc-600"></div>
-            <CardContent className="p-4">
-              <h3 className="text-base font-semibold mb-1">Discrete Math Review</h3>
-              <p className="text-xs text-slate-500 mb-4">ICS 6D • 8 Members</p>
-              <Button variant="outline" className="w-full">Details</Button>
-            </CardContent>
-          </Card>
+          {MOCK_MY_STUDY_GROUPS.map((group) => (
+            <StudyGroupCard key={group.id} group={group} />
+          ))}
         </div>
 
         <div className="flex justify-between items-center mb-4 mt-2">
@@ -98,70 +126,9 @@ export default function DashboardPage() {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {/* Rec 1 */}
-          <Card>
-            <CardContent className="p-4">
-              <div className="flex justify-between items-start mb-3">
-                <span className="bg-slate-100 text-slate-900 text-[10px] font-bold px-2 py-0.5 rounded">ICS 6D</span>
-                <Bookmark size={16} className="text-slate-400" />
-              </div>
-              <h4 className="text-sm font-semibold mb-1">Logic Sprint</h4>
-              <p className="text-xs text-slate-500 line-clamp-2 leading-relaxed mb-4">
-                Deep dive into boolean algebra and proofs...
-              </p>
-              <div className="flex justify-between items-center">
-                <div className="flex -space-x-1.5">
-                  <div className="w-5 h-5 rounded-full border-2 border-white bg-zinc-300"></div>
-                  <div className="w-5 h-5 rounded-full border-2 border-white bg-zinc-300"></div>
-                  <div className="w-5 h-5 rounded-full border-2 border-white bg-zinc-300"></div>
-                </div>
-                <span className="text-xs font-bold text-slate-900 cursor-pointer">JOIN</span>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Rec 2 */}
-          <Card>
-            <CardContent className="p-4">
-              <div className="flex justify-between items-start mb-3">
-                <span className="bg-slate-100 text-slate-900 text-[10px] font-bold px-2 py-0.5 rounded">ICS 45J</span>
-                <Bookmark size={16} className="text-slate-400" />
-              </div>
-              <h4 className="text-sm font-semibold mb-1">Pointer Logic</h4>
-              <p className="text-xs text-slate-500 line-clamp-2 leading-relaxed mb-4">
-                Mastering memory management and pointers...
-              </p>
-              <div className="flex justify-between items-center">
-                <div className="flex -space-x-1.5">
-                  <div className="w-5 h-5 rounded-full border-2 border-white bg-zinc-300"></div>
-                  <div className="w-5 h-5 rounded-full border-2 border-white bg-zinc-300"></div>
-                </div>
-                <span className="text-xs font-bold text-slate-900 cursor-pointer">JOIN</span>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Rec 3 */}
-          <Card>
-            <CardContent className="p-4">
-              <div className="flex justify-between items-start mb-3">
-                <span className="bg-slate-100 text-slate-900 text-[10px] font-bold px-2 py-0.5 rounded">IN4MTX 124</span>
-                <Bookmark size={16} className="text-slate-400" />
-              </div>
-              <h4 className="text-sm font-semibold mb-1">Web Dev Feedback</h4>
-              <p className="text-xs text-slate-500 line-clamp-2 leading-relaxed mb-4">
-                Peer review session for React final project...
-              </p>
-              <div className="flex justify-between items-center">
-                <div className="flex -space-x-1.5">
-                  <div className="w-5 h-5 rounded-full border-2 border-white bg-zinc-300"></div>
-                  <div className="w-5 h-5 rounded-full border-2 border-white bg-zinc-300"></div>
-                  <div className="w-5 h-5 rounded-full border-2 border-white bg-zinc-300"></div>
-                </div>
-                <span className="text-xs font-bold text-slate-900 cursor-pointer">JOIN</span>
-              </div>
-            </CardContent>
-          </Card>
+          {MOCK_RECOMMENDED.map((group) => (
+            <RecommendedGroupCard key={group.id} group={group} />
+          ))}
         </div>
       </div>
 
