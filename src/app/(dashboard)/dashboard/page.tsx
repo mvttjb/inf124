@@ -65,7 +65,7 @@ export default function DashboardPage() {
           <CardContent className="pt-6 flex flex-col items-center text-center">
             {/* Avatar Placeholder */}
             <div className="w-20 h-20 rounded-xl bg-slate-800 mb-4" />
-            <h2 className="text-xl font-semibold text-slate-900">Alex Chen</h2>
+            <h2 className="text-xl font-semibold text-slate-900">Lance Vu</h2>
             <p className="text-sm text-slate-500 mb-6">UC Irvine</p>
 
             <div className="w-full text-left">

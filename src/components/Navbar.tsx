@@ -15,7 +15,6 @@ const navItems: NavItem[] = [
   { path: "/dashboard", label: "Dashboard", icon: <LayoutDashboard size={20} /> },
   { path: "/search", label: "Browse Groups", icon: <Compass size={20} /> },
   { path: "/create-group", label: "Create Group", icon: <PlusCircle size={20} /> },
-  { path: "/availability", label: "Availability", icon: <Calendar size={20} /> },
   { path: "/requests", label: "Requests", icon: <MessageSquare size={20} /> },
   { path: "/profile", label: "Profile", icon: <User size={20} /> },
 ];
@@ -25,7 +24,7 @@ const Navbar: React.FC = () => {
   const pathname = usePathname();
 
   return (
-    <nav className="w-64 h-screen bg-slate-900 text-white flex flex-col flex-shrink-0 border-r border-slate-800 transition-all duration-300">
+    <nav className="w-64 min-h-full bg-slate-900 text-white flex flex-col flex-shrink-0 border-r border-slate-800 transition-all duration-300">
       <div 
         className="h-16 flex items-center px-6 border-b border-slate-800 cursor-pointer hover:bg-slate-800/50 transition-colors"
         onClick={() => router.push("/dashboard")}
