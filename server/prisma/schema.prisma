@@ -1,0 +1,200 @@
+// Prisma schema
+// Modeled directly from the frontend types in ../src/types and the mock data
+// in ../src/lib (browseGroups.ts, requests.ts) so the API returns the exact
+// shapes the React app already expects.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ---------------------------------------------------------------------------
+// Enums
+// ---------------------------------------------------------------------------
+enum AcademicYear {
+  FRESHMAN
+  SOPHOMORE
+  JUNIOR
+  SENIOR
+  GRAD
+}
+
+enum DayOfWeek {
+  MON
+  TUE
+  WED
+  THU
+  FRI
+  SAT
+  SUN
+}
+
+enum LocationType {
+  IN_PERSON
+  VIRTUAL
+}
+
+enum Privacy {
+  PUBLIC
+  PRIVATE
+}
+
+enum MemberRole {
+  OWNER
+  MEMBER
+}
+
+enum RequestStatus {
+  PENDING
+  APPROVED
+  DECLINED
+}
+
+enum ResourceType {
+  DOC
+  PDF
+  SLIDES
+  LINK
+}
+
+// ---------------------------------------------------------------------------
+// Models
+// ---------------------------------------------------------------------------
+model User {
+  id           String        @id @default(cuid())
+  firstName    String
+  lastName     String
+  email        String        @unique
+  passwordHash String
+  university   String        @default("UC Irvine")
+  major        String?
+  year         AcademicYear?
+  avatarColor  String        @default("bg-slate-800")
+  avatarUrl    String?
+  createdAt    DateTime      @default(now())
+
+  ownedGroups   Group[]        @relation("GroupOwner")
+  memberships   GroupMember[]
+  joinRequests  JoinRequest[]
+  enrollments   Enrollment[]
+  availability  Availability[]
+}
+
+model Course {
+  id      String  @id @default(cuid())
+  code    String  @unique // e.g. "CSCI301", "ICS 31"
+  title   String // e.g. "Algorithms"
+  subject String // e.g. "Computer Science" (drives the Subject filter)
+
+  groups      Group[]
+  enrollments Enrollment[]
+}
+
+// Many-to-many: which courses a user is enrolled in (profile "Enrolled Courses").
+model Enrollment {
+  userId   String
+  courseId String
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  @@id([userId, courseId])
+}
+
+model Group {
+  id           String       @id @default(cuid())
+  name         String
+  courseId     String
+  description  String       @default("")
+  locationType LocationType @default(IN_PERSON)
+  location     String       @default("") // room name or meeting link
+  locationDetail String     @default("")
+  privacy      Privacy      @default(PUBLIC)
+  maxMembers   Int          @default(6)
+  repeatType   String       @default("Every Week")
+  ownerId      String
+  createdAt    DateTime     @default(now())
+
+  course    Course         @relation(fields: [courseId], references: [id])
+  owner     User           @relation("GroupOwner", fields: [ownerId], references: [id])
+  meetings  GroupMeeting[]
+  members   GroupMember[]
+  requests  JoinRequest[]
+  resources Resource[]
+
+  @@index([courseId])
+  @@index([ownerId])
+}
+
+model GroupMeeting {
+  id        String    @id @default(cuid())
+  groupId   String
+  dayOfWeek DayOfWeek
+  startTime String // "16:00" or display "4:00 PM"
+  endTime   String? // "17:30" when known
+
+  group Group @relation(fields: [groupId], references: [id], onDelete: Cascade)
+
+  @@index([groupId])
+}
+
+model GroupMember {
+  id       String     @id @default(cuid())
+  groupId  String
+  userId   String
+  role     MemberRole @default(MEMBER)
+  joinedAt DateTime   @default(now())
+
+  group Group @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([groupId, userId])
+  @@index([groupId])
+  @@index([userId])
+}
+
+model JoinRequest {
+  id         String        @id @default(cuid())
+  groupId    String
+  userId     String
+  message    String        @default("")
+  status     RequestStatus @default(PENDING)
+  createdAt  DateTime      @default(now())
+  decidedAt  DateTime?
+
+  group Group @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([groupId, userId])
+  @@index([groupId])
+  @@index([status])
+}
+
+model Resource {
+  id      String       @id @default(cuid())
+  groupId String
+  name    String
+  type    ResourceType
+  url     String?
+
+  group Group @relation(fields: [groupId], references: [id], onDelete: Cascade)
+
+  @@index([groupId])
+}
+
+// Weekly availability grid for a user (powers the planned /availability screen).
+model Availability {
+  id        String    @id @default(cuid())
+  userId    String
+  dayOfWeek DayOfWeek
+  startTime String // "14:00"
+  endTime   String // "16:00"
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
