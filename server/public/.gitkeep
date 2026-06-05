@@ -1,0 +1,4 @@
+# Placeholder so Vercel finds a (static) output directory.
+# This API is served entirely by the serverless function in api/ — every
+# request is routed there via the rewrite in vercel.json — so this directory
+# intentionally stays empty.
