@@ -20,4 +20,6 @@ export const env = {
     .split(",")
     .map((o) => o.trim())
     .filter(Boolean),
+  // Anteater API key for UCI course lookups.
+  anteaterApiKey: process.env.ANTEATER_API_KEY ?? "",
 };
