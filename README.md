@@ -27,7 +27,7 @@ Built for INF124 (full-stack development).
 
 ## Architecture
 
-See [`docs/C4-diagrams.md`](docs/C4-diagrams.md) for the C4 diagrams (System Context,
+See [`docs`](docs) for the C4 diagrams (System Context,
 Container, and Component levels).
 
 ```
