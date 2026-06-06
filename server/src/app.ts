@@ -5,6 +5,7 @@ import { errorHandler, notFound } from "./middleware/errorHandler";
 import healthRouter from "./routes/health";
 import authRouter from "./routes/auth";
 import groupsRouter from "./routes/groups";
+import requestsRouter from "./routes/requests";
 import coursesRouter from "./routes/courses";
 
 // Builds and configures the Express application.
@@ -31,7 +32,7 @@ export function createApp() {
   app.use("/courses", coursesRouter);
   app.use("/groups", groupsRouter);
   //   app.use("/users", usersRouter);
-  //   app.use("/requests", requestsRouter);
+  app.use("/requests", requestsRouter);
 
   // Fallbacks.
   app.use(notFound);
