@@ -1,7 +1,7 @@
 # Study Group Finder — Backend API
 
 Node.js + Express + Prisma + PostgreSQL backend for the Campus Study Group
-Finder (INF124 Assignment 4). This is a standalone Node project; the React
+Finder. This is a standalone Node project; the React
 frontend lives one level up in the repo root.
 
 ## Stack
