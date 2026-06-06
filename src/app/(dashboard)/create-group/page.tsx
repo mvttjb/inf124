@@ -65,10 +65,25 @@ function FieldLabel({ htmlFor, children }: { htmlFor?: string; children: React.R
   );
 }
 
+import { api } from "@/lib/api";
+import { useRouter } from "next/navigation";
+
+const DAY_MAP_INV: Record<string, string> = {
+  "Mon": "MON",
+  "Tue": "TUE",
+  "Wed": "WED",
+  "Thu": "THU",
+  "Fri": "FRI",
+  "Sat": "SAT",
+  "Sun": "SUN"
+};
+
 // ---------------------------------------------------------------------------
 // Page
 // ---------------------------------------------------------------------------
 export default function CreateGroupPage() {
+  const router = useRouter();
+
   // ── Basic Info ──────────────────────────────────────────────────────────
   const [groupName, setGroupName] = useState("");
   const [course, setCourse] = useState<CourseOption | null>(null);
@@ -88,6 +103,9 @@ export default function CreateGroupPage() {
   const [maxMembers, setMaxMembers] = useState(6);
   const [privacy, setPrivacy] = useState<"open" | "private">("open");
 
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
   // ── Helpers ──────────────────────────────────────────────────────────────
   const toggleDay = (day: Day) => {
     setActiveDays((prev) => {
@@ -98,10 +116,49 @@ export default function CreateGroupPage() {
     });
   };
 
-  const handleCreate = (e: React.FormEvent) => {
+  const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: wire up to API
-    alert("Create Group submitted! (API integration pending)");
+    setError("");
+
+    if (!course) {
+      setError("Please select a course.");
+      return;
+    }
+    if (!groupName.trim()) {
+      setError("Please enter a group name.");
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const meetings = Array.from(activeDays).map((day) => ({
+        dayOfWeek: DAY_MAP_INV[day] as any,
+        startTime: fromTime || "12:00",
+        endTime: toTime || undefined,
+      }));
+
+      const newGroup = await api.createGroup({
+        name: groupName,
+        course: {
+          department: course.department,
+          courseNumber: course.courseNumber,
+          title: course.title,
+        },
+        description,
+        locationType: locationType === "in-person" ? "IN_PERSON" : "VIRTUAL",
+        location: meetingPoint,
+        privacy: privacy === "open" ? "PUBLIC" : "PRIVATE",
+        maxMembers,
+        repeatType: repeat,
+        meetings,
+      });
+
+      router.push(`/groups/${newGroup.id}`);
+    } catch (err: any) {
+      setError(err.message || "Failed to create group.");
+      setLoading(false);
+    }
   };
 
   // ── Input classes ─────────────────────────────────────────────────────────
@@ -318,11 +375,17 @@ export default function CreateGroupPage() {
 
         {/* ── Submit ───────────────────────────────────────────────────── */}
         <div className="flex flex-col gap-3">
+          {error && (
+            <div className="text-sm font-semibold text-red-600 bg-red-50 p-2.5 rounded border border-red-200 text-center">
+              {error}
+            </div>
+          )}
           <Button
             type="submit"
             className="w-full h-11 text-sm font-semibold bg-slate-900 hover:bg-slate-800"
+            disabled={loading}
           >
-            Create Group
+            {loading ? "Creating..." : "Create Group"}
           </Button>
           <Link
             href="/dashboard"

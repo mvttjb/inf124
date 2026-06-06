@@ -4,13 +4,11 @@ import React, { useCallback, useDeferredValue, useMemo, useState } from "react";
 import { Search, SlidersHorizontal, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { BrowseGroupCard } from "@/components/browse/BrowseGroupCard";
-import {
-  DAYS,
-  PAGE_SIZE,
-  SUBJECTS,
-  queryGroups,
-} from "@/lib/browseGroups";
+import { api } from "@/lib/api";
 import type { BrowseFilters, SortOption } from "@/types/browse";
+
+const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+const PAGE_SIZE = 9;
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -115,13 +113,55 @@ export default function BrowseGroupsPage() {
   const [filters, setFilters] = useState<BrowseFilters>(DEFAULT_FILTERS);
   const deferredFilters = useDeferredValue(filters);
 
-  // Query is pure client-side for now; swap with useSWR / React Query + API
-  const { groups, total, totalPages, page } = useMemo(
-    () => queryGroups(deferredFilters),
-    [deferredFilters]
-  );
+  const [groups, setGroups] = useState<any[]>([]);
+  const [total, setTotal] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
+  const [subjects, setSubjects] = useState<string[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const isStale = deferredFilters !== filters;
+  // Fetch subjects (departments) on mount
+  React.useEffect(() => {
+    async function loadSubjects() {
+      try {
+        const deptRes = await fetch("http://localhost:4000/courses/departments").then((r) => r.json());
+        if (deptRes?.departments) {
+          setSubjects(deptRes.departments);
+        }
+      } catch (err) {
+        console.error("Failed to load departments:", err);
+      }
+    }
+    loadSubjects();
+  }, []);
+
+  // Fetch groups on deferred filter change
+  React.useEffect(() => {
+    async function fetchGroups() {
+      setLoading(true);
+      try {
+        const res = await api.getGroups({
+          query: deferredFilters.query,
+          subject: deferredFilters.subject,
+          day: deferredFilters.day,
+          timeOfDay: deferredFilters.timeOfDay,
+          maxSize: deferredFilters.maxSize,
+          openOnly: deferredFilters.openOnly,
+          sort: deferredFilters.sort,
+          page: deferredFilters.page,
+        });
+        setGroups(res.groups);
+        setTotal(res.total);
+        setTotalPages(res.totalPages);
+      } catch (err) {
+        console.error("Failed to fetch groups:", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchGroups();
+  }, [deferredFilters]);
+
+  const isStale = deferredFilters !== filters || loading;
 
   const setFilter = useCallback(
     <K extends keyof BrowseFilters>(key: K, value: BrowseFilters[K]) => {
@@ -133,6 +173,8 @@ export default function BrowseGroupsPage() {
   const setPage = useCallback((p: number) => {
     setFilters((prev) => ({ ...prev, page: p }));
   }, []);
+
+  const page = filters.page;
 
   // Build smart page range: always show first, last, current ±1, with "…"
   const pageRange = useMemo(() => {
@@ -148,8 +190,8 @@ export default function BrowseGroupsPage() {
   }, [page, totalPages]);
 
   const subjectOptions = useMemo(
-    () => [{ value: "all", label: "All Subjects" }, ...SUBJECTS.map((s) => ({ value: s, label: s }))],
-    []
+    () => [{ value: "all", label: "All Subjects" }, ...subjects.map((s) => ({ value: s, label: s }))],
+    [subjects]
   );
   const dayOptions = useMemo(
     () => [{ value: "all", label: "Any Day" }, ...DAYS.map((d) => ({ value: d, label: d }))],

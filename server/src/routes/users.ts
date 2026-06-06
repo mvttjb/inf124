@@ -174,4 +174,79 @@ router.put("/me/availability", validateBody(availabilitySchema), async (req, res
 
 });
 
+// -- POST /users/me/courses -- enroll in a course --
+const enrollCourseSchema = z.object({
+    code: z.string().min(1),
+});
+
+router.post("/me/courses", validateBody(enrollCourseSchema), async (req, res, next) => {
+    try {
+        const { code } = req.body;
+        const normalizedCode = code.trim().toUpperCase();
+
+        // Find or create course
+        let course = await prisma.course.findUnique({ where: { code: normalizedCode } });
+        if (!course) {
+            course = await prisma.course.create({
+                data: {
+                    code: normalizedCode,
+                    title: normalizedCode, // Fallback title
+                    subject: normalizedCode.split(" ")[0] || "Unknown",
+                },
+            });
+        }
+
+        // Create enrollment
+        const enrollment = await prisma.enrollment.upsert({
+            where: {
+                userId_courseId: {
+                    userId: req.user!.id,
+                    courseId: course.id,
+                },
+            },
+            create: {
+                userId: req.user!.id,
+                courseId: course.id,
+            },
+            update: {},
+            include: {
+                course: true,
+            },
+        });
+
+        res.status(201).json({
+            id: enrollment.course.id,
+            code: enrollment.course.code,
+            title: enrollment.course.title,
+            subject: enrollment.course.subject,
+        });
+
+    } catch (err) {
+        next(err);
+    }
+});
+
+// -- DELETE /users/me/courses/:code -- unenroll from a course --
+router.delete("/me/courses/:code", async (req, res, next) => {
+    try {
+        const { code } = req.params;
+        const normalizedCode = code.trim().toUpperCase();
+
+        const course = await prisma.course.findUnique({ where: { code: normalizedCode } });
+        if (course) {
+            await prisma.enrollment.deleteMany({
+                where: {
+                    userId: req.user!.id,
+                    courseId: course.id,
+                },
+            });
+        }
+
+        res.status(204).end();
+
+    } catch (err) {
+        next(err);
+    }
+});
+
 export default router;

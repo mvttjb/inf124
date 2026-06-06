@@ -1,4 +1,5 @@
 import "../index.css";
+import { AuthProvider } from "@/components/auth/AuthContext";
 
 export const metadata = {
   title: "Wireframes App",
@@ -12,7 +13,11 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body suppressHydrationWarning>{children}</body>
+      <body suppressHydrationWarning>
+        <AuthProvider>
+          {children}
+        </AuthProvider>
+      </body>
     </html>
   );
 }
