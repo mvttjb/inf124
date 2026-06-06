@@ -12,7 +12,7 @@ Built for INF124 (full-stack development).
 | **Frontend (web app)** | https://ucistudygroups.vercel.app |
 | **Backend (API)** | https://uci-study-group-finder.vercel.app |
 | **Jira board** | https://mvttjb.atlassian.net/jira/software/projects/SCRUM/boards/1?atlOrigin=eyJpIjoiZTFjODU3OTIwOTYzNDU1NGFkNWIyNzAzNGZlZGE5YjAiLCJwIjoiaiJ9_ |
-| **Demo video** | _<!-- TODO: add your demo video link here -->_ |
+| **Demo video** | https://drive.google.com/file/d/1DDyvech2hTrR8Swh1LsHTCKav10FS4he/view?usp=sharing |
 
 **Demo login:** `lance@uci.edu` / `password123`
 
