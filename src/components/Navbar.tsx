@@ -4,6 +4,7 @@ import React from "react";
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
 import { LayoutDashboard, Compass, PlusCircle, Calendar, MessageSquare, User, LogOut } from "lucide-react";
+import { useAuth } from "@/components/auth/AuthContext";
 
 interface NavItem {
   path: string;
@@ -22,6 +23,7 @@ const navItems: NavItem[] = [
 const Navbar: React.FC = () => {
   const router = useRouter();
   const pathname = usePathname();
+  const { logout } = useAuth();
 
   return (
     <nav className="w-64 min-h-full bg-slate-900 text-white flex flex-col flex-shrink-0 border-r border-slate-800 transition-all duration-300">
@@ -59,13 +61,13 @@ const Navbar: React.FC = () => {
       </ul>
 
       <div className="p-4 border-t border-slate-800 mt-auto">
-        <Link 
-          href="/login" 
+        <button
+          onClick={logout}
           className="flex items-center gap-3 px-3 py-2.5 rounded-md text-slate-400 hover:bg-slate-800 hover:text-white transition-colors w-full"
         >
           <LogOut size={20} />
           <span className="font-medium text-sm">Sign Out</span>
-        </Link>
+        </button>
       </div>
     </nav>
   );
