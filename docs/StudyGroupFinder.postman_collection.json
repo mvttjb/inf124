@@ -1,0 +1,239 @@
+{
+  "info": {
+    "name": "Study Group Finder API",
+    "description": "Full API collection for the Campus Study Group Finder. Set {{baseUrl}} to the deployed Vercel URL or http://localhost:4000. Run 'Auth > Login' first — it auto-saves the JWT into {{token}} for all protected routes. 'Create Group' auto-saves the new id into {{groupId}}.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "https://uci-study-group-finder.vercel.app" },
+    { "key": "token", "value": "" },
+    { "key": "groupId", "value": "" },
+    { "key": "requestId", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "Health",
+      "item": [
+        {
+          "name": "GET /health",
+          "request": { "method": "GET", "url": "{{baseUrl}}/health" }
+        }
+      ]
+    },
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "POST /auth/register",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/auth/register",
+            "body": { "mode": "raw", "raw": "{\n  \"firstName\": \"Demo\",\n  \"lastName\": \"User\",\n  \"email\": \"demo+{{$timestamp}}@uci.edu\",\n  \"password\": \"password123\",\n  \"major\": \"Computer Science\",\n  \"year\": \"JUNIOR\"\n}" }
+          }
+        },
+        {
+          "name": "POST /auth/login (saves token)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const body = pm.response.json();",
+                  "if (body.token) {",
+                  "  pm.collectionVariables.set('token', body.token);",
+                  "  console.log('Saved token to {{token}}');",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/auth/login",
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"lance@uci.edu\",\n  \"password\": \"password123\"\n}" }
+          }
+        },
+        {
+          "name": "POST /auth/reset-password",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/auth/reset-password",
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"lance@uci.edu\",\n  \"newPassword\": \"password123\"\n}" }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Courses",
+      "item": [
+        {
+          "name": "GET /courses/departments",
+          "request": { "method": "GET", "url": "{{baseUrl}}/courses/departments" }
+        },
+        {
+          "name": "GET /courses?department=COMPSCI",
+          "request": { "method": "GET", "url": "{{baseUrl}}/courses?department=COMPSCI" }
+        }
+      ]
+    },
+    {
+      "name": "Groups",
+      "item": [
+        {
+          "name": "GET /groups",
+          "request": { "method": "GET", "url": "{{baseUrl}}/groups" }
+        },
+        {
+          "name": "GET /groups (filtered)",
+          "request": { "method": "GET", "url": "{{baseUrl}}/groups?subject=Computer Science&sort=alphabetical&openOnly=true&page=1" }
+        },
+        {
+          "name": "GET /groups/:id",
+          "request": { "method": "GET", "url": "{{baseUrl}}/groups/{{groupId}}" }
+        },
+        {
+          "name": "POST /groups (create, saves groupId)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const body = pm.response.json();",
+                  "if (body.id) pm.collectionVariables.set('groupId', body.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": "{{baseUrl}}/groups",
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"My Test Group\",\n  \"course\": { \"department\": \"COMPSCI\", \"courseNumber\": \"161\", \"title\": \"Design and Analysis of Algorithms\" },\n  \"description\": \"Created via Postman\",\n  \"maxMembers\": 8,\n  \"meetings\": [{ \"dayOfWeek\": \"MON\", \"startTime\": \"4:00 PM\" }]\n}" }
+          }
+        },
+        {
+          "name": "PATCH /groups/:id (update)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": "{{baseUrl}}/groups/{{groupId}}",
+            "body": { "mode": "raw", "raw": "{\n  \"description\": \"Updated via Postman\",\n  \"maxMembers\": 10\n}" }
+          }
+        },
+        {
+          "name": "POST /groups/:id/join",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": "{{baseUrl}}/groups/{{groupId}}/join",
+            "body": { "mode": "raw", "raw": "{\n  \"message\": \"Can I join?\"\n}" }
+          }
+        },
+        {
+          "name": "DELETE /groups/:id",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/groups/{{groupId}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Requests",
+      "item": [
+        {
+          "name": "GET /requests",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/requests"
+          }
+        },
+        {
+          "name": "POST /requests/:id/approve",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/requests/{{requestId}}/approve"
+          }
+        },
+        {
+          "name": "POST /requests/:id/decline",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/requests/{{requestId}}/decline"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Users",
+      "item": [
+        {
+          "name": "GET /users/me",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/users/me"
+          }
+        },
+        {
+          "name": "PATCH /users/me",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": "{{baseUrl}}/users/me",
+            "body": { "mode": "raw", "raw": "{\n  \"major\": \"Software Engineering\",\n  \"year\": \"SENIOR\"\n}" }
+          }
+        },
+        {
+          "name": "GET /users/me/groups",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/users/me/groups"
+          }
+        },
+        {
+          "name": "GET /users/me/availability",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/users/me/availability"
+          }
+        },
+        {
+          "name": "PUT /users/me/availability",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": "{{baseUrl}}/users/me/availability",
+            "body": { "mode": "raw", "raw": "{\n  \"slots\": [\n    { \"dayOfWeek\": \"MON\", \"startTime\": \"14:00\", \"endTime\": \"16:00\" },\n    { \"dayOfWeek\": \"WED\", \"startTime\": \"10:00\", \"endTime\": \"12:00\" }\n  ]\n}" }
+          }
+        }
+      ]
+    }
+  ]
+}
