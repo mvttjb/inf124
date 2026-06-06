@@ -6,16 +6,27 @@ import { useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/components/auth/AuthContext";
 
 export default function LoginPage() {
   const router = useRouter();
+  const { login } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Simulate login
-    router.push("/dashboard");
+    setError("");
+    setLoading(true);
+    try {
+      await login(email, password);
+    } catch (err: any) {
+      setError(err.message || "Invalid credentials. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -28,6 +39,11 @@ export default function LoginPage() {
       </CardHeader>
 
       <CardContent>
+        {error && (
+          <div className="mb-4 text-sm font-semibold text-red-600 bg-red-50 p-2.5 rounded border border-red-200 text-center">
+            {error}
+          </div>
+        )}
         <form onSubmit={handleLogin} className="space-y-4">
           <div className="space-y-1.5">
             <label htmlFor="email" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
@@ -62,8 +78,8 @@ export default function LoginPage() {
             />
           </div>
 
-          <Button type="submit" className="w-full mt-2 h-11">
-            Log In
+          <Button type="submit" className="w-full mt-2 h-11" disabled={loading}>
+            {loading ? "Logging In..." : "Log In"}
           </Button>
         </form>
       </CardContent>

@@ -20,13 +20,14 @@ import {
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { getGroupDetail } from "@/lib/browseGroups";
-import type { SharedResource } from "@/lib/browseGroups";
+import { useAuth } from "@/components/auth/AuthContext";
+import { api } from "@/lib/api";
+import { useEffect } from "react";
 
 // ---------------------------------------------------------------------------
 // Resource icon helper
 // ---------------------------------------------------------------------------
-function ResourceIcon({ type }: { type: SharedResource["type"] }) {
+function ResourceIcon({ type }: { type: string }) {
   const cls = "text-slate-500 flex-shrink-0";
   switch (type) {
     case "pdf":    return <FileText size={15} className={cls} />;
@@ -41,18 +42,50 @@ function ResourceIcon({ type }: { type: SharedResource["type"] }) {
 // ---------------------------------------------------------------------------
 export default function GroupDetailPage() {
   const params = useParams<{ id: string }>();
-  const group = getGroupDetail(params.id);
+  const { user: currentUser } = useAuth();
+  
+  const [group, setGroup] = useState<any | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [requestState, setRequestState] = useState<"idle" | "sent">("idle");
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    async function loadGroup() {
+      try {
+        setLoading(true);
+        const data = await api.getGroupDetail(params.id);
+        setGroup(data);
+      } catch (err) {
+        console.error("Failed to load group details:", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadGroup();
+  }, [params.id]);
+
+  const handleRequest = async () => {
+    setError("");
+    try {
+      await api.joinGroup(params.id, "Hi! I would love to join your study group to prepare for class together.");
+      setRequestState("sent");
+    } catch (err: any) {
+      setError(err.message || "Failed to submit request.");
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="max-w-[1100px] mx-auto w-full py-20 text-center text-slate-500 font-medium">
+        Loading group details...
+      </div>
+    );
+  }
 
   // If no group found, trigger Next.js 404
   if (!group) notFound();
 
-  const [requestState, setRequestState] = useState<"idle" | "sent">("idle");
-
-  const handleRequest = () => {
-    setRequestState("sent");
-    // TODO: POST /api/groups/:id/join
-  };
-
+  const isMember = currentUser && group.members.some((m: any) => m.id === currentUser.id);
   const isFull = group.currentMembers >= group.maxMembers;
   const pct = Math.round((group.currentMembers / group.maxMembers) * 100);
 
@@ -120,7 +153,7 @@ export default function GroupDetailPage() {
             </CardContent>
           </Card>
 
-          {/* Meeting Schedule – NO map image per user request */}
+          {/* Meeting Schedule */}
           <Card>
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-semibold text-slate-900">Meeting Schedule</CardTitle>
@@ -152,18 +185,12 @@ export default function GroupDetailPage() {
                 <h2 className="text-sm font-semibold text-slate-900">
                   Members ({group.currentMembers})
                 </h2>
-                <button
-                  type="button"
-                  className="text-xs text-slate-500 hover:text-slate-900 hover:underline transition-colors"
-                >
-                  View all
-                </button>
               </div>
 
               <div className="flex items-center gap-3">
                 {/* Stacked avatars */}
                 <div className="flex -space-x-2">
-                  {group.members.slice(0, VISIBLE_AVATARS).map((member) => (
+                  {group.members.slice(0, VISIBLE_AVATARS).map((member: any) => (
                     <div
                       key={member.id}
                       title={member.name}
@@ -240,8 +267,20 @@ export default function GroupDetailPage() {
                 />
               </div>
 
+              {error && (
+                <div className="mb-2.5 text-xs text-red-600 bg-red-50 p-2 rounded border border-red-100 text-center">
+                  {error}
+                </div>
+              )}
+
               {/* ── Single "Request to Join" button ── */}
-              {requestState === "sent" ? (
+              {isMember ? (
+                <div className="flex flex-col items-center gap-2">
+                  <div className="w-full h-10 flex items-center justify-center gap-2 rounded-md bg-slate-100 border border-slate-200 text-slate-700 text-sm font-semibold">
+                    Already a Member
+                  </div>
+                </div>
+              ) : requestState === "sent" ? (
                 <div className="flex flex-col items-center gap-2">
                   <div className="w-full h-10 flex items-center justify-center gap-2 rounded-md bg-emerald-50 border border-emerald-200 text-emerald-700 text-sm font-semibold">
                     <CheckCircle2 size={16} />
@@ -287,7 +326,7 @@ export default function GroupDetailPage() {
               <CardTitle className="text-sm font-semibold text-slate-900">Shared Resources</CardTitle>
             </CardHeader>
             <CardContent className="flex flex-col gap-2">
-              {group.sharedResources.map((res) => (
+              {group.sharedResources.map((res: any) => (
                 <button
                   key={res.id}
                   type="button"

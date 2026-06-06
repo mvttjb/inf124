@@ -6,15 +6,28 @@ import { ArrowLeft, CheckCircle } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/components/auth/AuthContext";
 
 export default function ResetPasswordPage() {
+  const { resetPassword } = useAuth();
   const [email, setEmail] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Simulate sending reset link
-    setIsSubmitted(true);
+    setError("");
+    setLoading(true);
+    try {
+      await resetPassword(email, newPassword);
+      setIsSubmitted(true);
+    } catch (err: any) {
+      setError(err.message || "Failed to reset password. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -28,11 +41,16 @@ export default function ResetPasswordPage() {
             </Link>
             <CardTitle className="text-3xl font-bold tracking-tight">Reset your password</CardTitle>
             <CardDescription className="text-slate-500 text-sm">
-              Enter your university email address and we&apos;ll send you a link to reset your password.
+              Enter your university email address and your new password to reset it.
             </CardDescription>
           </CardHeader>
 
           <CardContent>
+            {error && (
+              <div className="mb-4 text-sm font-semibold text-red-600 bg-red-50 p-2.5 rounded border border-red-200 text-center">
+                {error}
+              </div>
+            )}
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-1.5">
                 <label htmlFor="email" className="text-sm font-medium leading-none">
@@ -48,8 +66,23 @@ export default function ResetPasswordPage() {
                 />
               </div>
 
-              <Button type="submit" className="w-full h-11 mt-4">
-                Send Reset Link
+              <div className="space-y-1.5">
+                <label htmlFor="newPassword" className="text-sm font-medium leading-none">
+                  New Password
+                </label>
+                <Input
+                  type="password"
+                  id="newPassword"
+                  placeholder="••••••••"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  required
+                  minLength={8}
+                />
+              </div>
+
+              <Button type="submit" className="w-full h-11 mt-4" disabled={loading}>
+                {loading ? "Resetting..." : "Reset Password"}
               </Button>
             </form>
           </CardContent>
@@ -59,14 +92,16 @@ export default function ResetPasswordPage() {
           <div className="flex flex-col items-center text-center space-y-4 p-4">
             <CheckCircle className="h-12 w-12 text-green-500" />
             <div className="space-y-2">
-              <h2 className="text-xl font-bold tracking-tight">Check your inbox</h2>
+              <h2 className="text-xl font-bold tracking-tight">Password Reset Success</h2>
               <p className="text-slate-500 text-sm">
-                If an account exists for that email, you will receive a reset link shortly.
+                Your password has been successfully updated. You can now use your new password to log in.
               </p>
             </div>
-            <Button variant="outline" className="mt-4" onClick={() => setIsSubmitted(false)}>
-              Try another email
-            </Button>
+            <Link href="/login" className="w-full">
+              <Button className="w-full mt-4 bg-slate-900 text-white hover:bg-slate-700">
+                Log In
+              </Button>
+            </Link>
           </div>
         </CardContent>
       )}

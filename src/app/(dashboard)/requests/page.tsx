@@ -1,14 +1,32 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import { CheckCircle2, XCircle, Lightbulb } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import {
-  MOCK_PENDING,
-  MODERATED_GROUPS,
-} from "@/lib/requests";
-import type { DecidedRequest, JoinRequest } from "@/lib/requests";
+import { api } from "@/lib/api";
+
+type JoinRequest = {
+  id: string;
+  name: string;
+  university: string;
+  major: string;
+  year: string;
+  message: string;
+  /** Display date, e.g. "Oct 24, 2024" */
+  date: string;
+  avatarColor: string;
+  groupId: string;
+  groupName: string;
+};
+
+const YEAR_UNMAP: Record<string, string> = {
+  "FRESHMAN": "Freshman",
+  "SOPHOMORE": "Sophomore",
+  "JUNIOR": "Junior",
+  "SENIOR": "Senior",
+  "GRAD": "Graduate"
+};
 
 // ---------------------------------------------------------------------------
 // Avatar
@@ -23,20 +41,10 @@ function Avatar({ name, color }: { name: string; color: string }) {
   );
 }
 
-function AvatarSm({ name, color }: { name: string; color: string }) {
-  return (
-    <div
-      className={`w-9 h-9 rounded-full flex-shrink-0 ${color} flex items-center justify-center text-white font-bold text-sm`}
-    >
-      {name[0]}
-    </div>
-  );
-}
-
 // ---------------------------------------------------------------------------
 // Year tag colour
 // ---------------------------------------------------------------------------
-function YearBadge({ year }: { year: JoinRequest["year"] }) {
+function YearBadge({ year }: { year: string }) {
   const colour =
     year === "Freshman" ? "bg-green-100 text-green-700" :
       year === "Sophomore" ? "bg-blue-100 text-blue-700" :
@@ -108,38 +116,42 @@ function PendingCard({
 }
 
 // ---------------------------------------------------------------------------
-// Decided item row in the sidebar
-// ---------------------------------------------------------------------------
-function DecidedRow({ req }: { req: DecidedRequest }) {
-  return (
-    <div className="flex items-center gap-3">
-      <AvatarSm name={req.name} color={req.avatarColor} />
-      <div className="flex-1 min-w-0">
-        <p className="text-sm font-semibold text-slate-800 truncate">{req.name}</p>
-        <p className="text-[11px] text-slate-400">{req.decidedAt}</p>
-      </div>
-      {req.decision === "approved" ? (
-        <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-100 text-emerald-700 flex-shrink-0">
-          APPROVED
-        </span>
-      ) : (
-        <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-red-100 text-red-600 flex-shrink-0">
-          DECLINED
-        </span>
-      )}
-    </div>
-  );
-}
-
-// ---------------------------------------------------------------------------
 // Page
 // ---------------------------------------------------------------------------
 export default function RequestsPage() {
   const [selectedGroupId, setSelectedGroupId] = useState<string>("all");
-  const [pending, setPending] = useState<JoinRequest[]>(MOCK_PENDING);
+  const [pending, setPending] = useState<JoinRequest[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
+  const fetchRequests = async () => {
+    try {
+      setLoading(true);
+      const data = await api.getRequests();
+      const mapped = data.map((r: any) => ({
+        id: r.id,
+        name: r.user.name,
+        university: "UC Irvine",
+        major: r.user.major || "Unknown Major",
+        year: YEAR_UNMAP[r.user.year] || "Freshman",
+        message: r.message || "Hi, I'd like to join your study group!",
+        date: new Date(r.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }),
+        avatarColor: r.user.avatarColor || "bg-slate-800",
+        groupId: r.group.id,
+        groupName: r.group.title
+      }));
+      setPending(mapped);
+    } catch (err: any) {
+      console.error("Failed to fetch requests:", err);
+      setError(err.message || "Failed to load requests.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
-
+  useEffect(() => {
+    fetchRequests();
+  }, []);
 
   // Filter pending by selected group
   const visiblePending = useMemo(
@@ -150,14 +162,35 @@ export default function RequestsPage() {
     [pending, selectedGroupId]
   );
 
-  const now = new Date();
-  const decidedAt = `${now.toLocaleDateString("en-US", { month: "short", day: "numeric" })}, ${now.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" })}`;
+  const moderatedGroups = useMemo(() => {
+    const map = new Map<string, string>();
+    pending.forEach((r) => {
+      map.set(r.groupId, r.groupName);
+    });
+    return Array.from(map.entries()).map(([id, name]) => ({ id, name }));
+  }, [pending]);
 
-  const handle = (req: JoinRequest, decision: "approved" | "declined") => {
-    setPending((prev) => prev.filter((r) => r.id !== req.id));
-    const decidedReq: DecidedRequest = { ...req, decision, decidedAt };
-
+  const handle = async (req: JoinRequest, decision: "approved" | "declined") => {
+    try {
+      if (decision === "approved") {
+        await api.approveRequest(req.id);
+      } else {
+        await api.declineRequest(req.id);
+      }
+      setPending((prev) => prev.filter((r) => r.id !== req.id));
+    } catch (err: any) {
+      console.error("Failed to handle request:", err);
+      alert(err.message || "Failed to submit decision.");
+    }
   };
+
+  if (loading) {
+    return (
+      <div className="max-w-[1100px] mx-auto w-full py-20 text-center text-slate-500 font-medium">
+        Loading join requests...
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-[1100px] mx-auto w-full flex flex-col gap-6 pb-12">
@@ -185,7 +218,7 @@ export default function RequestsPage() {
             className="h-10 rounded-md border border-slate-200 bg-white px-3 pr-8 text-sm text-slate-800 shadow-sm focus:outline-none focus:ring-2 focus:ring-slate-900/20 cursor-pointer min-w-[220px]"
           >
             <option value="all">All Groups</option>
-            {MODERATED_GROUPS.map((g) => (
+            {moderatedGroups.map((g) => (
               <option key={g.id} value={g.id}>
                 {g.name}
               </option>
@@ -194,10 +227,16 @@ export default function RequestsPage() {
         </div>
       </div>
 
-      {/* ── Two-column layout ─────────────────────────────────────────────── */}
-      <div className="grid grid-cols-1 lg:grid-cols-[1fr_280px] gap-6 items-start">
+      {error && (
+        <div className="text-sm font-semibold text-red-600 bg-red-50 p-2.5 rounded border border-red-200 text-center">
+          {error}
+        </div>
+      )}
 
-        {/* ── LEFT: Pending requests ────────────────────────────────────── */}
+      {/* ── Two-column layout ─────────────────────────────────────────────── */}
+      <div className="grid grid-cols-1 gap-6 items-start">
+
+        {/* ── Pending requests ────────────────────────────────────── */}
         <div className="flex flex-col gap-4">
           <h2 className="text-sm font-semibold text-slate-500 uppercase tracking-wide">
             Pending Requests
@@ -209,7 +248,7 @@ export default function RequestsPage() {
                 <CheckCircle2 size={40} strokeWidth={1.5} className="text-emerald-400" />
                 <p className="text-base font-medium text-slate-600">All caught up!</p>
                 <p className="text-sm text-slate-400 text-center">
-                  No pending requests for this group.
+                  No pending requests.
                 </p>
               </CardContent>
             </Card>
@@ -224,7 +263,6 @@ export default function RequestsPage() {
             ))
           )}
         </div>
-
 
       </div>
     </div>
