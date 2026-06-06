@@ -4,6 +4,7 @@ import { env } from "./config/env";
 import { errorHandler, notFound } from "./middleware/errorHandler";
 import healthRouter from "./routes/health";
 import authRouter from "./routes/auth";
+import coursesRouter from "./routes/courses";
 
 // Builds and configures the Express application.
 // Routes are mounted here; the server is started in index.ts.
@@ -26,6 +27,7 @@ export function createApp() {
 
   // TODO: mount feature routers here, e.g.
   app.use("/auth", authRouter);
+  app.use("/courses", coursesRouter);
   //   app.use("/groups", groupsRouter);
   //   app.use("/users", usersRouter);
   //   app.use("/requests", requestsRouter);

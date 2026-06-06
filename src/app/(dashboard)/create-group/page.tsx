@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import CourseSearchDropdown, { type CourseOption } from "@/components/dashboard/CourseSearchDropdown";
 
 // ---------------------------------------------------------------------------
 // Types & constants
@@ -20,16 +21,6 @@ import { Button } from "@/components/ui/button";
 const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"] as const;
 type Day = (typeof DAYS)[number];
 
-const COURSES = [
-  "CSCI301 – Algorithms",
-  "PHYS202 – Quantum Mechanics",
-  "MATH102 – Calculus II",
-  "PHIL210 – BioEthics",
-  "CSCI202 – Data Structures",
-  "CHEM301 – Organic Chemistry",
-  "ECON201 – Microeconomics",
-  "ENGL215 – Creative Writing",
-];
 
 const REPEAT_OPTIONS = [
   "Every Week",
@@ -80,7 +71,7 @@ function FieldLabel({ htmlFor, children }: { htmlFor?: string; children: React.R
 export default function CreateGroupPage() {
   // ── Basic Info ──────────────────────────────────────────────────────────
   const [groupName, setGroupName] = useState("");
-  const [course, setCourse] = useState("");
+  const [course, setCourse] = useState<CourseOption | null>(null);
   const [description, setDescription] = useState("");
 
   // ── Schedule ─────────────────────────────────────────────────────────────
@@ -145,18 +136,11 @@ export default function CreateGroupPage() {
           </div>
 
           <div>
-            <FieldLabel htmlFor="course-select">Course</FieldLabel>
-            <select
-              id="course-select"
-              value={course}
-              onChange={(e) => setCourse(e.target.value)}
-              className={selectCls}
-            >
-              <option value="" disabled>Select a course</option>
-              {COURSES.map((c) => (
-                <option key={c} value={c}>{c}</option>
-              ))}
-            </select>
+            <FieldLabel>Course</FieldLabel>
+            <CourseSearchDropdown
+              selectedCourse={course}
+              onSelect={setCourse}
+            />
           </div>
 
           <div>
