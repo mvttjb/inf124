@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardDescription, CardFooter } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/components/auth/AuthContext";
@@ -32,7 +32,7 @@ export default function LoginPage() {
   return (
     <Card className="w-full max-w-md shadow-lg">
       <CardHeader className="text-center space-y-2">
-        <CardTitle className="text-3xl font-bold tracking-tight">Welcome back</CardTitle>
+        <h1 className="text-3xl font-bold tracking-tight">Welcome back</h1>
         <CardDescription className="text-slate-500 text-sm">
           Please enter your details to continue your studies.
         </CardDescription>

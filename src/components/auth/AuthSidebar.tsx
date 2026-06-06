@@ -24,6 +24,7 @@ export function AuthSidebar({
 }: AuthSidebarProps) {
   return (
     <aside
+      aria-label="About StudyGroup"
       className={cn(
         "hidden md:flex flex-col justify-between w-[400px] bg-slate-900 text-white p-12",
         className
