@@ -20,6 +20,9 @@ const navItems: NavItem[] = [
   { path: "/profile", label: "Profile", icon: <User size={20} /> },
 ];
 
+// Shared focus ring for keyboard users (visible against the dark sidebar).
+const focusRing = "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500";
+
 const Navbar: React.FC = () => {
   const router = useRouter();
   const pathname = usePathname();
@@ -31,18 +34,29 @@ const Navbar: React.FC = () => {
     setMobileOpen(false);
   }, [pathname]);
 
+  const Logo = ({ mr }: { mr: string }) => (
+    <span className={`w-8 h-8 rounded-lg bg-blue-600 inline-flex items-center justify-center font-bold text-lg ${mr} shadow-sm`}>
+      S
+    </span>
+  );
+
   return (
     <>
       {/* Mobile top bar (hidden on desktop) */}
       <header className="md:hidden fixed top-0 left-0 right-0 h-16 z-40 flex items-center justify-between px-4 bg-slate-900 text-white border-b border-slate-800">
-        <div className="flex items-center cursor-pointer" onClick={() => router.push("/dashboard")}>
-          <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center font-bold text-lg mr-2 shadow-sm">S</div>
+        <button
+          type="button"
+          onClick={() => router.push("/dashboard")}
+          aria-label="Go to dashboard"
+          className={`flex items-center rounded-md ${focusRing}`}
+        >
+          <Logo mr="mr-2" />
           <span className="font-bold text-lg tracking-wide">StudyGroup</span>
-        </div>
+        </button>
         <button
           onClick={() => setMobileOpen(true)}
           aria-label="Open navigation menu"
-          className="p-2 rounded-md hover:bg-slate-800 transition-colors"
+          className={`p-2 rounded-md hover:bg-slate-800 transition-colors ${focusRing}`}
         >
           <Menu size={24} />
         </button>
@@ -65,18 +79,20 @@ const Navbar: React.FC = () => {
           ${mobileOpen ? "translate-x-0" : "-translate-x-full"}`}
       >
         <div className="h-16 flex items-center justify-between px-6 border-b border-slate-800">
-          <div
-            className="flex items-center cursor-pointer hover:opacity-80 transition-opacity"
+          <button
+            type="button"
             onClick={() => router.push("/dashboard")}
+            aria-label="Go to dashboard"
+            className={`flex items-center rounded-md hover:opacity-80 transition-opacity ${focusRing}`}
           >
-            <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center font-bold text-lg mr-3 shadow-sm">S</div>
+            <Logo mr="mr-3" />
             <span className="font-bold text-lg tracking-wide">StudyGroup</span>
-          </div>
+          </button>
           {/* Close button (mobile only) */}
           <button
             onClick={() => setMobileOpen(false)}
             aria-label="Close navigation menu"
-            className="md:hidden p-1 rounded-md hover:bg-slate-800 transition-colors"
+            className={`md:hidden p-1 rounded-md hover:bg-slate-800 transition-colors ${focusRing}`}
           >
             <X size={22} />
           </button>
@@ -90,13 +106,13 @@ const Navbar: React.FC = () => {
                 <Link
                   href={item.path}
                   aria-current={isActive ? "page" : undefined}
-                  className={`flex items-center gap-3 px-3 py-2.5 rounded-md transition-all duration-200 ${
+                  className={`flex items-center gap-3 px-3 py-2.5 rounded-md transition-all duration-200 ${focusRing} ${
                     isActive
                       ? "bg-slate-800 text-white shadow-sm border border-slate-700"
-                      : "text-slate-400 hover:bg-slate-800/50 hover:text-white"
+                      : "text-slate-300 hover:bg-slate-800/50 hover:text-white"
                   }`}
                 >
-                  <span className={isActive ? "text-blue-400" : "text-slate-500"}>
+                  <span className={isActive ? "text-blue-400" : "text-slate-400"}>
                     {item.icon}
                   </span>
                   <span className="font-medium text-sm">{item.label}</span>
@@ -109,7 +125,7 @@ const Navbar: React.FC = () => {
         <div className="p-4 border-t border-slate-800 mt-auto">
           <button
             onClick={logout}
-            className="flex items-center gap-3 px-3 py-2.5 rounded-md text-slate-400 hover:bg-slate-800 hover:text-white transition-colors w-full"
+            className={`flex items-center gap-3 px-3 py-2.5 rounded-md text-slate-300 hover:bg-slate-800 hover:text-white transition-colors w-full ${focusRing}`}
           >
             <LogOut size={20} />
             <span className="font-medium text-sm">Sign Out</span>
