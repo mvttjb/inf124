@@ -24,7 +24,7 @@ const DETAIL_INCLUDE = {
 
 function toGroupDetail(g: any) {
 
-    const days = g.meetings.map((m: any) => DAY_LABEL[m.dayOfWeek]);
+    const days = g.meetings.map((m: any) => DAY_LABEL[m.dayOfWeek as DayOfWeek]);
     const first = g.meetings[0];
     const time = first ? (first.endTime ? `${first.startTime}-${first.endTime}` : first.startTime) : "";
 

@@ -5,6 +5,8 @@ import { errorHandler, notFound } from "./middleware/errorHandler";
 import healthRouter from "./routes/health";
 import authRouter from "./routes/auth";
 import groupsRouter from "./routes/groups";
+import usersRouter from "./routes/users";
+import requestsRouter from "./routes/requests";
 import coursesRouter from "./routes/courses";
 
 // Builds and configures the Express application.
@@ -25,13 +27,11 @@ export function createApp() {
 
   // Routes.
   app.use("/health", healthRouter);
-
-  // TODO: mount feature routers here, e.g.
   app.use("/auth", authRouter);
   app.use("/courses", coursesRouter);
   app.use("/groups", groupsRouter);
-  //   app.use("/users", usersRouter);
-  //   app.use("/requests", requestsRouter);
+  app.use("/users", usersRouter);
+  app.use("/requests", requestsRouter);
 
   // Fallbacks.
   app.use(notFound);
