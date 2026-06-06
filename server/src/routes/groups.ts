@@ -30,6 +30,7 @@ function toGroupDetail(g: any) {
 
     return {
         id: g.id, title: g.name, courseCode: g.course.code, subject: g.course.subject,
+        ownerId: g.ownerId,
         privacy: g.privacy === "PRIVATE" ? "Private" : "Public",
         description: g.description,
         createdBy: `${g.owner.firstName} ${g.owner.lastName}`,

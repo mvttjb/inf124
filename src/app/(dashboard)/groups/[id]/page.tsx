@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { useParams, notFound } from "next/navigation";
+import { useParams, notFound, useRouter } from "next/navigation";
 import Link from "next/link";
 import {
   CalendarDays,
@@ -17,9 +17,12 @@ import {
   Clock,
   Users,
   ChevronLeft,
+  Pencil,
+  Trash2,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { useAuth } from "@/components/auth/AuthContext";
 import { api } from "@/lib/api";
 import { useEffect } from "react";
@@ -42,12 +45,18 @@ function ResourceIcon({ type }: { type: string }) {
 // ---------------------------------------------------------------------------
 export default function GroupDetailPage() {
   const params = useParams<{ id: string }>();
+  const router = useRouter();
   const { user: currentUser } = useAuth();
-  
+
   const [group, setGroup] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
   const [requestState, setRequestState] = useState<"idle" | "sent">("idle");
   const [error, setError] = useState("");
+
+  // Owner edit/delete state
+  const [editing, setEditing] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [form, setForm] = useState({ name: "", description: "", maxMembers: 6 });
 
   useEffect(() => {
     async function loadGroup() {
@@ -74,6 +83,43 @@ export default function GroupDetailPage() {
     }
   };
 
+  const startEdit = () => {
+    setForm({ name: group.title, description: group.description, maxMembers: group.maxMembers });
+    setError("");
+    setEditing(true);
+  };
+
+  const handleSave = async () => {
+    setBusy(true);
+    setError("");
+    try {
+      const updated = await api.updateGroup(params.id, {
+        name: form.name,
+        description: form.description,
+        maxMembers: Number(form.maxMembers),
+      });
+      setGroup(updated);
+      setEditing(false);
+    } catch (err: any) {
+      setError(err.message || "Failed to update group.");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!window.confirm("Delete this group? This cannot be undone.")) return;
+    setBusy(true);
+    setError("");
+    try {
+      await api.deleteGroup(params.id);
+      router.push("/search");
+    } catch (err: any) {
+      setError(err.message || "Failed to delete group.");
+      setBusy(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="max-w-[1100px] mx-auto w-full py-20 text-center text-slate-500 font-medium">
@@ -86,6 +132,7 @@ export default function GroupDetailPage() {
   if (!group) notFound();
 
   const isMember = currentUser && group.members.some((m: any) => m.id === currentUser.id);
+  const isOwner = currentUser && group.ownerId === currentUser.id;
   const isFull = group.currentMembers >= group.maxMembers;
   const pct = Math.round((group.currentMembers / group.maxMembers) * 100);
 
@@ -134,8 +181,83 @@ export default function GroupDetailPage() {
             <Share2 size={14} />
             Share
           </Button>
+
+          {/* Owner-only actions */}
+          {isOwner && !editing && (
+            <>
+              <Button
+                variant="outline"
+                size="sm"
+                className="flex items-center gap-1.5"
+                onClick={startEdit}
+              >
+                <Pencil size={14} />
+                Edit
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                className="flex items-center gap-1.5 text-red-600 hover:text-red-700 border-red-200 hover:bg-red-50"
+                onClick={handleDelete}
+                disabled={busy}
+              >
+                <Trash2 size={14} />
+                Delete
+              </Button>
+            </>
+          )}
         </div>
       </div>
+
+      {/* ── Owner edit panel ─────────────────────────────────────────────── */}
+      {isOwner && editing && (
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-semibold text-slate-900">Edit Group</CardTitle>
+          </CardHeader>
+          <CardContent className="flex flex-col gap-3">
+            <div className="flex flex-col gap-1.5">
+              <label htmlFor="edit-name" className="text-sm font-medium">Group Name</label>
+              <Input
+                id="edit-name"
+                value={form.name}
+                onChange={(e) => setForm({ ...form, name: e.target.value })}
+              />
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <label htmlFor="edit-desc" className="text-sm font-medium">Description</label>
+              <textarea
+                id="edit-desc"
+                rows={3}
+                className="w-full rounded-md border border-slate-200 px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+                value={form.description}
+                onChange={(e) => setForm({ ...form, description: e.target.value })}
+              />
+            </div>
+            <div className="flex flex-col gap-1.5 max-w-[180px]">
+              <label htmlFor="edit-max" className="text-sm font-medium">Max Members</label>
+              <Input
+                id="edit-max"
+                type="number"
+                min={1}
+                value={form.maxMembers}
+                onChange={(e) => setForm({ ...form, maxMembers: Number(e.target.value) })}
+              />
+            </div>
+            {error && (
+              <div className="text-xs text-red-600 bg-red-50 p-2 rounded border border-red-100">{error}</div>
+            )}
+            <div className="flex items-center gap-2 pt-1">
+              <Button onClick={handleSave} disabled={busy}>
+                {busy ? "Saving..." : "Save Changes"}
+              </Button>
+              <Button variant="outline" onClick={() => setEditing(false)} disabled={busy}>
+                Cancel
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* ── Two-column layout ────────────────────────────────────────────── */}
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-5 items-start">
