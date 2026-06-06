@@ -6,7 +6,6 @@ import { useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { AuthSocialDivider, GoogleSsoButton } from "@/components/auth/GoogleSsoButton";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -67,9 +66,6 @@ export default function LoginPage() {
             Log In
           </Button>
         </form>
-
-        <AuthSocialDivider />
-        <GoogleSsoButton />
       </CardContent>
 
       <CardFooter className="flex justify-center text-sm text-slate-500">
